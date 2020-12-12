@@ -10,26 +10,29 @@ namespace AdventOfCodeDay03
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World! {0}", args.Length);
-            if (args.Length == 2)
-            {
-                AdventOfCodeDay03.Program.runWithArgs(Program.testData, args);
-            }
-            else
-            {
-                Int64 treesHitProduct = 1;
-                var useMap = Program.mapData;
-                treesHitProduct *= AdventOfCodeDay03.Program.doWork(useMap, 1, 1);
-                treesHitProduct *= AdventOfCodeDay03.Program.doWork(useMap, 3, 1);
-                treesHitProduct *= AdventOfCodeDay03.Program.doWork(useMap, 5, 1);
-                treesHitProduct *= AdventOfCodeDay03.Program.doWork(useMap, 7, 1);
-                treesHitProduct *= AdventOfCodeDay03.Program.doWork(useMap, 1, 2);
+            //Console.WriteLine("Hello World! {0}", args.Length);
+            //if (args.Length == 2)
+            //{
+            //    AdventOfCodeDay03.Program.runWithArgs(Program.testData, args);
+            //}
+            //else
+            //{
 
-                Console.WriteLine("Tree hit product: {0}... that's a lot of trees!", treesHitProduct);
-            }
+            var pgm = new Program();
+            Int64 treesHitProduct = 1;
+            var useMap = Program.mapData;
+            treesHitProduct *= pgm.doWork(useMap, 1, 1);
+            treesHitProduct *= pgm.doWork(useMap, 3, 1);
+            treesHitProduct *= pgm.doWork(useMap, 5, 1);
+            treesHitProduct *= pgm.doWork(useMap, 7, 1);
+            treesHitProduct *= pgm.doWork(useMap, 1, 2);
+
+            Console.WriteLine("Tree hit product: {0}... that's a lot of trees!", treesHitProduct);
+            //}
         }
+        public Program() { }
 
-        public static void runWithArgs(string[] mapData, string[] args)
+        public void runWithArgs(string[] mapData, string[] args)
         {
             var right = 3;
             var down = 1;
@@ -40,12 +43,10 @@ namespace AdventOfCodeDay03
                 down = Int32.Parse(args[1]);
             }
 
-            AdventOfCodeDay03.Program.doWork(mapData, right, down);
-
-
+            doWork(mapData, right, down);
         }
 
-        public static int doWork(string[] mapData, int rightStep, int downStep)
+        public int doWork(string[] mapData, int rightStep, int downStep)
         {
             var tree = "#";
             var treesHit = 0;
