@@ -95,6 +95,10 @@ namespace AdventOfCodeDay07
 
             var bagRule = bagRules.Where((br) => br.bagColor == color).FirstOrDefault();
 
+            if (bagRule.bagContents.Count == 0) {
+                Console.WriteLine($"{prependDebug}... nothing.");
+            }
+
             foreach (var bc in bagRule.bagContents) {
                 Console.WriteLine($"{prependDebug}{bc.qty} of {bc.color}");
                 returnValue += bc.qty;
