@@ -20,35 +20,64 @@ namespace AdventOfCodeDay08
 
             Console.WriteLine($"Finished.");
         }
-        private string fileName { get; } = string.Empty;
-        private List<StartupRule> startupRules = new List<StartupRule>();
-        private List<int> rulesRan = new List<int>();
         private bool verbose = false;
         public int accumulator = 0;
 
         public ProgramDay08(string file, bool verbose = false)
         {
-            this.fileName = file;
             this.verbose = verbose;
-            if (this.verbose) Console.WriteLine($"Working with file: {fileName}");
-            init();
-            doWork();
+            List<StartupRule> startupRules = init(file);
+            var changeInstructionAt = 0;
+            var completed = doWork(startupRules);
+
+            while (!completed)
+            {
+                accumulator = 0;
+                var _startupRules = alterList(startupRules, changeInstructionAt);
+                completed = doWork(_startupRules);
+                changeInstructionAt++;
+            }
+
         }
 
-        public void init()
+        public List<StartupRule> init(string fileName)
         {
+            if (this.verbose) Console.WriteLine($"Working with file: {fileName}");
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fileName);
             string[] lines = File.ReadAllLines(path);
-
+            List<StartupRule> startupRules = new List<StartupRule>();
             foreach (var line in lines)
             {
                 StartupRule startupRule = new StartupRule(line, this.verbose);
                 if (this.verbose) Console.WriteLine($"{startupRule}");
                 startupRules.Add(startupRule);
             }
+            return startupRules;
         }
 
-        public void doWork() {
+        public List<StartupRule> alterList(List<StartupRule> startupRules, int changeAt)
+        {
+            List<StartupRule> _startupRules = new List<StartupRule>();
+
+            var index = 0;
+            foreach (var startupRule in startupRules)
+            {
+                StartupRule sr = startupRule.copy();
+
+                if (index == changeAt)
+                {
+                    if (sr.operation == "nop" && sr.argument != 0) { sr.operation = "jmp"; }
+                    else if (sr.operation == "jmp") { sr.operation = "nop"; }
+                }
+                _startupRules.Add(sr);
+                index++;
+            }
+
+            return _startupRules;
+        }
+
+        public bool doWork(List<StartupRule> startupRules)
+        {
             /**
              * acc increases or decreases a single global value called the accumulator by the value given in the argument. For example, acc +7 would increase the accumulator by 7.The accumulator starts at 0.After an acc instruction, the instruction immediately below it is executed next.
              * 
@@ -57,14 +86,26 @@ namespace AdventOfCodeDay08
              * nop stands for No OPeration -it does nothing.The instruction immediately below it is executed next.
              * 
              */
-
+            var ranToCompletion = false;
             int instructionNumber = 0;
-            for (var i = 0; i < startupRules.Count; i++) {
+            List<int> rulesRan = new List<int>();
+
+            for (var i = 0; i < startupRules.Count; i++)
+            {
+                if (instructionNumber >= startupRules.Count)
+                {
+                    if (this.verbose) Console.WriteLine($"Reached end of instructions!!! {instructionNumber}, accumulator is {accumulator}");
+                    ranToCompletion = true;
+                    break;
+                }
+
                 StartupRule sr = startupRules[instructionNumber];
                 if (this.verbose) Console.WriteLine($"Running step {i}, instruction {instructionNumber}, rule >>{sr}<<");
 
-                if (rulesRan.Contains(instructionNumber)) {
+                if (rulesRan.Contains(instructionNumber))
+                {
                     if (this.verbose) Console.WriteLine($"Already ran instruction {instructionNumber}, accumulator is {accumulator}");
+                    ranToCompletion = false;
                     break;
                 }
                 rulesRan.Add(instructionNumber);
@@ -88,25 +129,8 @@ namespace AdventOfCodeDay08
                         break;
                 }
             }
-        }
-    }
 
-
-    class StartupRule {
-        public string operation { get; set; } = string.Empty;
-        public int argument { get; set; } = 0;
-        private bool verbose = false;
-        public StartupRule(string ruleLine, bool verbose = false) {
-            this.verbose = verbose;
-            var elems = ruleLine.Trim().Split(" ");
-            operation = elems[0];
-            argument = int.Parse(elems[1]);
-        }
-
-        override
-        public string ToString()
-        {
-            return $"{operation} {argument}";
+            return ranToCompletion;
         }
     }
 }
